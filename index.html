@@ -1,13 +1,518 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <title>Prompt Keep App</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prompt Keep App</title>
+  <style>
+    :root {
+      --bg: #f5f5f5;
+      --card: #ffffff;
+      --text: #222222;
+      --sub: #666666;
+      --line: #dddddd;
+      --accent: #222222;
+      --accent-text: #ffffff;
+      --danger: #b00020;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin: 0 0 8px;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--sub);
+      font-size: 0.95rem;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 16px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 90px;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .primary {
+      background: var(--accent);
+      color: var(--accent-text);
+    }
+
+    .secondary {
+      background: #e9e9e9;
+      color: var(--text);
+    }
+
+    .danger {
+      background: #fbe9ec;
+      color: var(--danger);
+      border: 1px solid #f3c3cb;
+    }
+
+    .muted {
+      color: var(--sub);
+      font-size: 0.9rem;
+    }
+
+    .status {
+      margin-top: 10px;
+      font-size: 0.92rem;
+      color: var(--sub);
+      min-height: 1.4em;
+    }
+
+    .list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .prompt-count {
+      font-size: 0.92rem;
+      color: var(--sub);
+    }
+
+    .prompt-item {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+      background: #fff;
+    }
+
+    .prompt-item h3 {
+      margin: 0 0 6px;
+      font-size: 1.05rem;
+    }
+
+    .prompt-item .desc {
+      margin: 0 0 8px;
+      color: var(--sub);
+      font-size: 0.92rem;
+      white-space: pre-wrap;
+    }
+
+    .prompt-item .content {
+      margin: 0 0 12px;
+      background: #fafafa;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      white-space: pre-wrap;
+      font-size: 0.94rem;
+    }
+
+    .prompt-item .meta {
+      color: var(--sub);
+      font-size: 0.82rem;
+      margin-bottom: 10px;
+    }
+
+    .item-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .empty {
+      color: var(--sub);
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .selected-note {
+      margin-top: 10px;
+      color: var(--sub);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 12px;
+      }
+
+      .card {
+        padding: 14px;
+      }
+
+      button {
+        width: 100%;
+      }
+
+      .item-buttons button {
+        width: auto;
+        flex: 1 1 calc(50% - 8px);
+      }
+    }
+  </style>
 </head>
 <body>
-    <h1>プロンプト保存アプリ</h1>
-    <textarea id="prompt" rows="4" cols="50" placeholder="ここにプロンプトを入力"></textarea>
-    <br>
-    <button onclick="alert('仮保存しました！')">保存</button>
+  <div class="container">
+    <section class="card">
+      <h1>プロンプト保存アプリ</h1>
+      <p class="lead">名前・説明・プロンプトを保存し、一覧から編集・削除・コピーできます。</p>
+    </section>
+
+    <section class="card">
+      <form id="promptForm">
+        <div class="form-group">
+          <label for="promptName">名称</label>
+          <input
+            type="text"
+            id="promptName"
+            placeholder="例：算数動画サムネイル用プロンプト"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="promptDescription">説明</label>
+          <textarea
+            id="promptDescription"
+            placeholder="このプロンプトの用途や補足説明を入力"
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="promptContent">プロンプト</label>
+          <textarea
+            id="promptContent"
+            placeholder="実際のプロンプトを入力"
+            style="min-height: 180px;"
+          ></textarea>
+        </div>
+
+        <div class="button-row">
+          <button type="button" class="primary" id="saveButton">保存</button>
+          <button type="button" class="secondary" id="updateButton">変更</button>
+          <button type="button" class="secondary" id="clearButton">入力欄をクリア</button>
+        </div>
+
+        <div class="selected-note" id="selectedNote">現在、新規作成モードです。</div>
+        <div class="status" id="statusMessage"></div>
+      </form>
+    </section>
+
+    <section class="card">
+      <div class="list-header">
+        <h2 style="margin: 0; font-size: 1.15rem;">保存済みプロンプト</h2>
+        <div class="prompt-count" id="promptCount">0件</div>
+      </div>
+
+      <div id="promptList"></div>
+    </section>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "promptKeepAppData";
+
+    const promptNameInput = document.getElementById("promptName");
+    const promptDescriptionInput = document.getElementById("promptDescription");
+    const promptContentInput = document.getElementById("promptContent");
+
+    const saveButton = document.getElementById("saveButton");
+    const updateButton = document.getElementById("updateButton");
+    const clearButton = document.getElementById("clearButton");
+
+    const promptList = document.getElementById("promptList");
+    const promptCount = document.getElementById("promptCount");
+    const statusMessage = document.getElementById("statusMessage");
+    const selectedNote = document.getElementById("selectedNote");
+
+    let prompts = loadPrompts();
+    let editingId = null;
+
+    function loadPrompts() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return [];
+
+      try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        console.error("保存データの読み込みに失敗しました:", error);
+        return [];
+      }
+    }
+
+    function savePrompts() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(prompts));
+    }
+
+    function createId() {
+      return "id-" + Date.now() + "-" + Math.random().toString(16).slice(2);
+    }
+
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      if (Number.isNaN(date.getTime())) return "日時不明";
+      return date.toLocaleString("ja-JP");
+    }
+
+    function showStatus(message) {
+      statusMessage.textContent = message;
+    }
+
+    function clearForm() {
+      promptNameInput.value = "";
+      promptDescriptionInput.value = "";
+      promptContentInput.value = "";
+      editingId = null;
+      selectedNote.textContent = "現在、新規作成モードです。";
+      showStatus("");
+    }
+
+    function validateInputs() {
+      const name = promptNameInput.value.trim();
+      const description = promptDescriptionInput.value.trim();
+      const content = promptContentInput.value.trim();
+
+      if (!name) {
+        showStatus("名称を入力してください。");
+        promptNameInput.focus();
+        return null;
+      }
+
+      if (!content) {
+        showStatus("プロンプトを入力してください。");
+        promptContentInput.focus();
+        return null;
+      }
+
+      return { name, description, content };
+    }
+
+    function renderPrompts() {
+      promptList.innerHTML = "";
+
+      if (prompts.length === 0) {
+        promptList.innerHTML = '<div class="empty">まだ保存されたプロンプトはありません。</div>';
+        promptCount.textContent = "0件";
+        return;
+      }
+
+      promptCount.textContent = `${prompts.length}件`;
+
+      const sortedPrompts = [...prompts].sort((a, b) => {
+        return new Date(b.updatedAt) - new Date(a.updatedAt);
+      });
+
+      sortedPrompts.forEach((item) => {
+        const wrapper = document.createElement("article");
+        wrapper.className = "prompt-item";
+
+        const title = document.createElement("h3");
+        title.textContent = item.name;
+
+        const desc = document.createElement("p");
+        desc.className = "desc";
+        desc.textContent = item.description || "説明なし";
+
+        const content = document.createElement("div");
+        content.className = "content";
+        content.textContent = item.content;
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        meta.textContent = `作成: ${formatDate(item.createdAt)} / 更新: ${formatDate(item.updatedAt)}`;
+
+        const buttonRow = document.createElement("div");
+        buttonRow.className = "item-buttons";
+
+        const editButton = document.createElement("button");
+        editButton.type = "button";
+        editButton.className = "secondary";
+        editButton.textContent = "編集";
+        editButton.addEventListener("click", () => startEdit(item.id));
+
+        const copyButton = document.createElement("button");
+        copyButton.type = "button";
+        copyButton.className = "secondary";
+        copyButton.textContent = "コピー";
+        copyButton.addEventListener("click", () => copyPrompt(item.content));
+
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className = "danger";
+        deleteButton.textContent = "削除";
+        deleteButton.addEventListener("click", () => deletePrompt(item.id));
+
+        buttonRow.appendChild(editButton);
+        buttonRow.appendChild(copyButton);
+        buttonRow.appendChild(deleteButton);
+
+        wrapper.appendChild(title);
+        wrapper.appendChild(desc);
+        wrapper.appendChild(content);
+        wrapper.appendChild(meta);
+        wrapper.appendChild(buttonRow);
+
+        promptList.appendChild(wrapper);
+      });
+    }
+
+    function addPrompt() {
+      const values = validateInputs();
+      if (!values) return;
+
+      const now = new Date().toISOString();
+
+      const newItem = {
+        id: createId(),
+        name: values.name,
+        description: values.description,
+        content: values.content,
+        createdAt: now,
+        updatedAt: now
+      };
+
+      prompts.push(newItem);
+      savePrompts();
+      renderPrompts();
+      clearForm();
+      showStatus("保存しました。");
+    }
+
+    function startEdit(id) {
+      const target = prompts.find((item) => item.id === id);
+      if (!target) return;
+
+      editingId = id;
+      promptNameInput.value = target.name;
+      promptDescriptionInput.value = target.description;
+      promptContentInput.value = target.content;
+      selectedNote.textContent = `編集中: ${target.name}`;
+      showStatus("内容を修正して「変更」を押してください。");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function updatePrompt() {
+      if (!editingId) {
+        showStatus("先に一覧から編集する項目を選んでください。");
+        return;
+      }
+
+      const values = validateInputs();
+      if (!values) return;
+
+      const index = prompts.findIndex((item) => item.id === editingId);
+      if (index === -1) {
+        showStatus("編集対象が見つかりませんでした。");
+        return;
+      }
+
+      prompts[index] = {
+        ...prompts[index],
+        name: values.name,
+        description: values.description,
+        content: values.content,
+        updatedAt: new Date().toISOString()
+      };
+
+      savePrompts();
+      renderPrompts();
+      clearForm();
+      showStatus("変更を保存しました。");
+    }
+
+    function deletePrompt(id) {
+      const target = prompts.find((item) => item.id === id);
+      if (!target) return;
+
+      const confirmed = window.confirm(`「${target.name}」を削除しますか？`);
+      if (!confirmed) return;
+
+      prompts = prompts.filter((item) => item.id !== id);
+
+      if (editingId === id) {
+        clearForm();
+      }
+
+      savePrompts();
+      renderPrompts();
+      showStatus("削除しました。");
+    }
+
+    async function copyPrompt(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+        showStatus("プロンプトをコピーしました。");
+      } catch (error) {
+        console.error("コピーに失敗しました:", error);
+        showStatus("コピーに失敗しました。");
+      }
+    }
+
+    saveButton.addEventListener("click", addPrompt);
+    updateButton.addEventListener("click", updatePrompt);
+    clearButton.addEventListener("click", clearForm);
+
+    renderPrompts();
+  </script>
 </body>
 </html>
