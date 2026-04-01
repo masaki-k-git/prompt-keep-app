@@ -14,6 +14,8 @@
       --accent: #222222;
       --accent-text: #ffffff;
       --danger: #b00020;
+      --soft: #f0f0f0;
+      --star: #f4b400;
     }
 
     * {
@@ -29,7 +31,7 @@
     }
 
     .container {
-      max-width: 720px;
+      max-width: 860px;
       margin: 0 auto;
       padding: 16px;
     }
@@ -43,9 +45,13 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     }
 
+    h1, h2, h3 {
+      margin-top: 0;
+    }
+
     h1 {
       font-size: 1.5rem;
-      margin: 0 0 8px;
+      margin-bottom: 8px;
     }
 
     .lead {
@@ -66,7 +72,8 @@
     }
 
     input,
-    textarea {
+    textarea,
+    select {
       width: 100%;
       border: 1px solid var(--line);
       border-radius: 10px;
@@ -94,16 +101,13 @@
       font-size: 15px;
       font-weight: 700;
       cursor: pointer;
+      background: var(--soft);
+      color: var(--text);
     }
 
     .primary {
       background: var(--accent);
       color: var(--accent-text);
-    }
-
-    .secondary {
-      background: #e9e9e9;
-      color: var(--text);
     }
 
     .danger {
@@ -112,16 +116,40 @@
       border: 1px solid #f3c3cb;
     }
 
-    .muted {
-      color: var(--sub);
-      font-size: 0.9rem;
-    }
-
     .status {
       margin-top: 10px;
       font-size: 0.92rem;
       color: var(--sub);
       min-height: 1.4em;
+    }
+
+    .selected-note {
+      margin-top: 10px;
+      color: var(--sub);
+      font-size: 0.9rem;
+    }
+
+    .inline-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: end;
+    }
+
+    .inline-row > * {
+      flex: 1 1 220px;
+    }
+
+    .small-button {
+      flex: 0 0 auto;
+      width: auto;
+      white-space: nowrap;
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 12px;
     }
 
     .list-header {
@@ -166,12 +194,30 @@
       padding: 10px;
       white-space: pre-wrap;
       font-size: 0.94rem;
+      max-height: 220px;
+      overflow: auto;
     }
 
-    .prompt-item .meta {
+    .meta {
       color: var(--sub);
       font-size: 0.82rem;
       margin-bottom: 10px;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #f2f2f2;
+      border: 1px solid var(--line);
+      font-size: 0.82rem;
     }
 
     .item-buttons {
@@ -186,22 +232,53 @@
       padding: 20px 0;
     }
 
-    .selected-note {
-      margin-top: 10px;
-      color: var(--sub);
-      font-size: 0.9rem;
+    .stars {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      align-items: center;
     }
 
-    @media (max-width: 480px) {
-      .container {
-        padding: 12px;
-      }
+    .star-button {
+      background: transparent;
+      border: none;
+      padding: 4px 2px;
+      font-size: 28px;
+      line-height: 1;
+      cursor: pointer;
+      color: #c7c7c7;
+    }
 
-      .card {
-        padding: 14px;
+    .star-button.active {
+      color: var(--star);
+    }
+
+    .rating-text {
+      margin-left: 8px;
+      font-size: 0.9rem;
+      color: var(--sub);
+    }
+
+    .utility-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    @media (max-width: 640px) {
+      .filter-grid {
+        grid-template-columns: 1fr;
       }
 
       button {
+        width: 100%;
+      }
+
+      .small-button {
         width: 100%;
       }
 
@@ -216,46 +293,77 @@
   <div class="container">
     <section class="card">
       <h1>プロンプト保存アプリ</h1>
-      <p class="lead">名前・説明・プロンプトを保存し、一覧から編集・削除・コピーできます。</p>
+      <p class="lead">名称・説明・カテゴリ・星評価付きでプロンプトを保存できます。検索、JSONバックアップにも対応しています。</p>
     </section>
 
     <section class="card">
-      <form id="promptForm">
-        <div class="form-group">
-          <label for="promptName">名称</label>
-          <input
-            type="text"
-            id="promptName"
-            placeholder="例：算数動画サムネイル用プロンプト"
-          />
-        </div>
+      <h2 style="font-size: 1.15rem;">新規作成 / 編集</h2>
 
-        <div class="form-group">
-          <label for="promptDescription">説明</label>
-          <textarea
-            id="promptDescription"
-            placeholder="このプロンプトの用途や補足説明を入力"
-          ></textarea>
-        </div>
+      <div class="form-group">
+        <label for="promptName">名称</label>
+        <input type="text" id="promptName" placeholder="例：算数動画サムネイル用プロンプト" />
+      </div>
 
-        <div class="form-group">
-          <label for="promptContent">プロンプト</label>
-          <textarea
-            id="promptContent"
-            placeholder="実際のプロンプトを入力"
-            style="min-height: 180px;"
-          ></textarea>
-        </div>
+      <div class="form-group">
+        <label for="promptDescription">説明</label>
+        <textarea id="promptDescription" placeholder="このプロンプトの用途や補足説明を入力"></textarea>
+      </div>
 
-        <div class="button-row">
-          <button type="button" class="primary" id="saveButton">保存</button>
-          <button type="button" class="secondary" id="updateButton">変更</button>
-          <button type="button" class="secondary" id="clearButton">入力欄をクリア</button>
-        </div>
+      <div class="form-group">
+        <label for="promptCategory">カテゴリ</label>
+        <select id="promptCategory"></select>
+      </div>
 
-        <div class="selected-note" id="selectedNote">現在、新規作成モードです。</div>
-        <div class="status" id="statusMessage"></div>
-      </form>
+      <div class="form-group">
+        <label>カテゴリを追加</label>
+        <div class="inline-row">
+          <input type="text" id="newCategoryInput" placeholder="例：動画生成" />
+          <button type="button" class="small-button" id="addCategoryButton">カテゴリ追加</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>評価</label>
+        <div class="stars" id="ratingStars"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="promptContent">プロンプト</label>
+        <textarea id="promptContent" placeholder="実際のプロンプトを入力" style="min-height: 180px;"></textarea>
+      </div>
+
+      <div class="button-row">
+        <button type="button" class="primary" id="saveButton">保存</button>
+        <button type="button" id="updateButton">変更</button>
+        <button type="button" id="clearButton">入力欄をクリア</button>
+      </div>
+
+      <div class="selected-note" id="selectedNote">現在、新規作成モードです。</div>
+      <div class="status" id="statusMessage"></div>
+    </section>
+
+    <section class="card">
+      <h2 style="font-size: 1.15rem;">検索・絞り込み</h2>
+      <div class="filter-grid">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="searchInput">キーワード検索</label>
+          <input type="text" id="searchInput" placeholder="名称・説明・プロンプト本文で検索" />
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="categoryFilter">カテゴリ絞り込み</label>
+          <select id="categoryFilter"></select>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 style="font-size: 1.15rem;">バックアップ</h2>
+      <div class="utility-row">
+        <button type="button" id="exportButton">JSONエクスポート</button>
+        <button type="button" id="importButton">JSONインポート</button>
+        <input type="file" id="importFileInput" class="file-input" accept=".json,application/json" />
+      </div>
+      <div class="status" id="backupStatus"></div>
     </section>
 
     <section class="card">
@@ -263,45 +371,85 @@
         <h2 style="margin: 0; font-size: 1.15rem;">保存済みプロンプト</h2>
         <div class="prompt-count" id="promptCount">0件</div>
       </div>
-
       <div id="promptList"></div>
     </section>
   </div>
 
   <script>
-    const STORAGE_KEY = "promptKeepAppData";
+    const PROMPTS_KEY = "promptKeepAppData_v2";
+    const CATEGORIES_KEY = "promptKeepAppCategories_v2";
+
+    const DEFAULT_CATEGORIES = [
+      "文章作成",
+      "画像生成",
+      "調査・要約",
+      "アイデア整理",
+      "教材・学習"
+    ];
 
     const promptNameInput = document.getElementById("promptName");
     const promptDescriptionInput = document.getElementById("promptDescription");
+    const promptCategorySelect = document.getElementById("promptCategory");
+    const newCategoryInput = document.getElementById("newCategoryInput");
     const promptContentInput = document.getElementById("promptContent");
 
     const saveButton = document.getElementById("saveButton");
     const updateButton = document.getElementById("updateButton");
     const clearButton = document.getElementById("clearButton");
+    const addCategoryButton = document.getElementById("addCategoryButton");
+
+    const searchInput = document.getElementById("searchInput");
+    const categoryFilter = document.getElementById("categoryFilter");
+
+    const exportButton = document.getElementById("exportButton");
+    const importButton = document.getElementById("importButton");
+    const importFileInput = document.getElementById("importFileInput");
+
+    const ratingStars = document.getElementById("ratingStars");
 
     const promptList = document.getElementById("promptList");
     const promptCount = document.getElementById("promptCount");
     const statusMessage = document.getElementById("statusMessage");
+    const backupStatus = document.getElementById("backupStatus");
     const selectedNote = document.getElementById("selectedNote");
 
     let prompts = loadPrompts();
+    let categories = loadCategories();
     let editingId = null;
+    let selectedRating = 3;
 
     function loadPrompts() {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(PROMPTS_KEY);
       if (!raw) return [];
-
       try {
         const parsed = JSON.parse(raw);
         return Array.isArray(parsed) ? parsed : [];
       } catch (error) {
-        console.error("保存データの読み込みに失敗しました:", error);
+        console.error("プロンプト読み込みエラー:", error);
         return [];
       }
     }
 
+    function loadCategories() {
+      const raw = localStorage.getItem(CATEGORIES_KEY);
+      if (!raw) return [...DEFAULT_CATEGORIES];
+      try {
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return [...DEFAULT_CATEGORIES];
+        const merged = [...new Set([...DEFAULT_CATEGORIES, ...parsed.filter(Boolean)])];
+        return merged;
+      } catch (error) {
+        console.error("カテゴリ読み込みエラー:", error);
+        return [...DEFAULT_CATEGORIES];
+      }
+    }
+
     function savePrompts() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(prompts));
+      localStorage.setItem(PROMPTS_KEY, JSON.stringify(prompts));
+    }
+
+    function saveCategories() {
+      localStorage.setItem(CATEGORIES_KEY, JSON.stringify(categories));
     }
 
     function createId() {
@@ -318,23 +466,92 @@
       statusMessage.textContent = message;
     }
 
+    function showBackupStatus(message) {
+      backupStatus.textContent = message;
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function renderCategoryOptions() {
+      promptCategorySelect.innerHTML = "";
+      categoryFilter.innerHTML = "";
+
+      const allOption = document.createElement("option");
+      allOption.value = "";
+      allOption.textContent = "すべて";
+      categoryFilter.appendChild(allOption);
+
+      categories.forEach((category) => {
+        const option1 = document.createElement("option");
+        option1.value = category;
+        option1.textContent = category;
+        promptCategorySelect.appendChild(option1);
+
+        const option2 = document.createElement("option");
+        option2.value = category;
+        option2.textContent = category;
+        categoryFilter.appendChild(option2);
+      });
+    }
+
+    function setRating(value) {
+      selectedRating = value;
+      renderStars();
+    }
+
+    function renderStars() {
+      ratingStars.innerHTML = "";
+
+      for (let i = 1; i <= 5; i++) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "star-button" + (i <= selectedRating ? " active" : "");
+        button.textContent = i <= selectedRating ? "★" : "☆";
+        button.setAttribute("aria-label", `${i}星`);
+        button.addEventListener("click", () => setRating(i));
+        ratingStars.appendChild(button);
+      }
+
+      const ratingText = document.createElement("span");
+      ratingText.className = "rating-text";
+      ratingText.textContent = `${selectedRating} / 5`;
+      ratingStars.appendChild(ratingText);
+    }
+
     function clearForm() {
       promptNameInput.value = "";
       promptDescriptionInput.value = "";
       promptContentInput.value = "";
+      promptCategorySelect.value = categories[0] || "";
       editingId = null;
       selectedNote.textContent = "現在、新規作成モードです。";
+      setRating(3);
       showStatus("");
     }
 
     function validateInputs() {
       const name = promptNameInput.value.trim();
       const description = promptDescriptionInput.value.trim();
+      const category = promptCategorySelect.value.trim();
       const content = promptContentInput.value.trim();
+      const rating = selectedRating;
 
       if (!name) {
         showStatus("名称を入力してください。");
         promptNameInput.focus();
+        return null;
+      }
+
+      if (!category) {
+        showStatus("カテゴリを選択してください。");
+        promptCategorySelect.focus();
         return null;
       }
 
@@ -344,76 +561,33 @@
         return null;
       }
 
-      return { name, description, content };
+      return { name, description, category, content, rating };
     }
 
-    function renderPrompts() {
-      promptList.innerHTML = "";
+    function addCategory() {
+      const newCategory = newCategoryInput.value.trim();
 
-      if (prompts.length === 0) {
-        promptList.innerHTML = '<div class="empty">まだ保存されたプロンプトはありません。</div>';
-        promptCount.textContent = "0件";
+      if (!newCategory) {
+        showStatus("追加するカテゴリ名を入力してください。");
+        newCategoryInput.focus();
         return;
       }
 
-      promptCount.textContent = `${prompts.length}件`;
+      const exists = categories.some(
+        (category) => category.toLowerCase() === newCategory.toLowerCase()
+      );
 
-      const sortedPrompts = [...prompts].sort((a, b) => {
-        return new Date(b.updatedAt) - new Date(a.updatedAt);
-      });
+      if (exists) {
+        showStatus("同じカテゴリ名は追加できません。");
+        return;
+      }
 
-      sortedPrompts.forEach((item) => {
-        const wrapper = document.createElement("article");
-        wrapper.className = "prompt-item";
-
-        const title = document.createElement("h3");
-        title.textContent = item.name;
-
-        const desc = document.createElement("p");
-        desc.className = "desc";
-        desc.textContent = item.description || "説明なし";
-
-        const content = document.createElement("div");
-        content.className = "content";
-        content.textContent = item.content;
-
-        const meta = document.createElement("div");
-        meta.className = "meta";
-        meta.textContent = `作成: ${formatDate(item.createdAt)} / 更新: ${formatDate(item.updatedAt)}`;
-
-        const buttonRow = document.createElement("div");
-        buttonRow.className = "item-buttons";
-
-        const editButton = document.createElement("button");
-        editButton.type = "button";
-        editButton.className = "secondary";
-        editButton.textContent = "編集";
-        editButton.addEventListener("click", () => startEdit(item.id));
-
-        const copyButton = document.createElement("button");
-        copyButton.type = "button";
-        copyButton.className = "secondary";
-        copyButton.textContent = "コピー";
-        copyButton.addEventListener("click", () => copyPrompt(item.content));
-
-        const deleteButton = document.createElement("button");
-        deleteButton.type = "button";
-        deleteButton.className = "danger";
-        deleteButton.textContent = "削除";
-        deleteButton.addEventListener("click", () => deletePrompt(item.id));
-
-        buttonRow.appendChild(editButton);
-        buttonRow.appendChild(copyButton);
-        buttonRow.appendChild(deleteButton);
-
-        wrapper.appendChild(title);
-        wrapper.appendChild(desc);
-        wrapper.appendChild(content);
-        wrapper.appendChild(meta);
-        wrapper.appendChild(buttonRow);
-
-        promptList.appendChild(wrapper);
-      });
+      categories.push(newCategory);
+      saveCategories();
+      renderCategoryOptions();
+      promptCategorySelect.value = newCategory;
+      newCategoryInput.value = "";
+      showStatus(`カテゴリ「${newCategory}」を追加しました。`);
     }
 
     function addPrompt() {
@@ -426,7 +600,9 @@
         id: createId(),
         name: values.name,
         description: values.description,
+        category: values.category,
         content: values.content,
+        rating: values.rating,
         createdAt: now,
         updatedAt: now
       };
@@ -444,8 +620,10 @@
 
       editingId = id;
       promptNameInput.value = target.name;
-      promptDescriptionInput.value = target.description;
+      promptDescriptionInput.value = target.description || "";
       promptContentInput.value = target.content;
+      promptCategorySelect.value = target.category || categories[0] || "";
+      setRating(Number(target.rating) || 3);
       selectedNote.textContent = `編集中: ${target.name}`;
       showStatus("内容を修正して「変更」を押してください。");
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -470,7 +648,9 @@
         ...prompts[index],
         name: values.name,
         description: values.description,
+        category: values.category,
         content: values.content,
+        rating: values.rating,
         updatedAt: new Date().toISOString()
       };
 
@@ -503,15 +683,190 @@
         await navigator.clipboard.writeText(text);
         showStatus("プロンプトをコピーしました。");
       } catch (error) {
-        console.error("コピーに失敗しました:", error);
+        console.error("コピー失敗:", error);
         showStatus("コピーに失敗しました。");
       }
+    }
+
+    function getFilteredPrompts() {
+      const keyword = searchInput.value.trim().toLowerCase();
+      const filterCategory = categoryFilter.value;
+
+      return [...prompts]
+        .filter((item) => {
+          const matchesKeyword =
+            !keyword ||
+            item.name.toLowerCase().includes(keyword) ||
+            (item.description || "").toLowerCase().includes(keyword) ||
+            item.content.toLowerCase().includes(keyword);
+
+          const matchesCategory =
+            !filterCategory || item.category === filterCategory;
+
+          return matchesKeyword && matchesCategory;
+        })
+        .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+    }
+
+    function ratingToStars(rating) {
+      const value = Math.max(1, Math.min(5, Number(rating) || 1));
+      return "★".repeat(value) + "☆".repeat(5 - value);
+    }
+
+    function renderPrompts() {
+      promptList.innerHTML = "";
+
+      const filtered = getFilteredPrompts();
+      promptCount.textContent = `${filtered.length}件`;
+
+      if (filtered.length === 0) {
+        promptList.innerHTML = '<div class="empty">条件に一致するプロンプトはありません。</div>';
+        return;
+      }
+
+      filtered.forEach((item) => {
+        const wrapper = document.createElement("article");
+        wrapper.className = "prompt-item";
+
+        wrapper.innerHTML = `
+          <h3>${escapeHtml(item.name)}</h3>
+          <div class="badge-row">
+            <span class="badge">${escapeHtml(item.category || "未分類")}</span>
+            <span class="badge">${ratingToStars(item.rating || 3)}</span>
+          </div>
+          <p class="desc">${escapeHtml(item.description || "説明なし")}</p>
+          <div class="content">${escapeHtml(item.content)}</div>
+          <div class="meta">
+            作成: ${escapeHtml(formatDate(item.createdAt))} / 更新: ${escapeHtml(formatDate(item.updatedAt))}
+          </div>
+        `;
+
+        const buttonRow = document.createElement("div");
+        buttonRow.className = "item-buttons";
+
+        const editButton = document.createElement("button");
+        editButton.type = "button";
+        editButton.textContent = "編集";
+        editButton.addEventListener("click", () => startEdit(item.id));
+
+        const copyButton = document.createElement("button");
+        copyButton.type = "button";
+        copyButton.textContent = "コピー";
+        copyButton.addEventListener("click", () => copyPrompt(item.content));
+
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className = "danger";
+        deleteButton.textContent = "削除";
+        deleteButton.addEventListener("click", () => deletePrompt(item.id));
+
+        buttonRow.appendChild(editButton);
+        buttonRow.appendChild(copyButton);
+        buttonRow.appendChild(deleteButton);
+        wrapper.appendChild(buttonRow);
+
+        promptList.appendChild(wrapper);
+      });
+    }
+
+    function exportJson() {
+      const payload = {
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        categories,
+        prompts
+      };
+
+      const json = JSON.stringify(payload, null, 2);
+      const blob = new Blob([json], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, "0");
+      const dd = String(now.getDate()).padStart(2, "0");
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `prompt-keep-backup-${yyyy}-${mm}-${dd}.json`;
+      link.click();
+
+      URL.revokeObjectURL(url);
+      showBackupStatus("JSONを書き出しました。Google Drive などに保存してください。");
+    }
+
+    function importJsonFile(file) {
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(reader.result);
+
+          if (!parsed || typeof parsed !== "object") {
+            throw new Error("JSON形式が不正です。");
+          }
+
+          const importedCategories = Array.isArray(parsed.categories) ? parsed.categories : [];
+          const importedPrompts = Array.isArray(parsed.prompts) ? parsed.prompts : [];
+
+          const mergedCategories = [...new Set([...DEFAULT_CATEGORIES, ...categories, ...importedCategories])]
+            .filter((item) => typeof item === "string" && item.trim() !== "");
+
+          const normalizedPrompts = importedPrompts
+            .filter((item) => item && typeof item === "object")
+            .map((item) => ({
+              id: item.id || createId(),
+              name: String(item.name || "").trim(),
+              description: String(item.description || ""),
+              category: String(item.category || mergedCategories[0] || "文章作成"),
+              content: String(item.content || ""),
+              rating: Math.max(1, Math.min(5, Number(item.rating) || 3)),
+              createdAt: item.createdAt || new Date().toISOString(),
+              updatedAt: item.updatedAt || new Date().toISOString()
+            }))
+            .filter((item) => item.name && item.content);
+
+          categories = mergedCategories;
+          prompts = normalizedPrompts;
+
+          saveCategories();
+          savePrompts();
+          renderCategoryOptions();
+          renderPrompts();
+          clearForm();
+
+          showBackupStatus("JSONをインポートしました。");
+        } catch (error) {
+          console.error(error);
+          showBackupStatus("JSONの読み込みに失敗しました。形式を確認してください。");
+        } finally {
+          importFileInput.value = "";
+        }
+      };
+
+      reader.readAsText(file);
     }
 
     saveButton.addEventListener("click", addPrompt);
     updateButton.addEventListener("click", updatePrompt);
     clearButton.addEventListener("click", clearForm);
+    addCategoryButton.addEventListener("click", addCategory);
 
+    searchInput.addEventListener("input", renderPrompts);
+    categoryFilter.addEventListener("change", renderPrompts);
+
+    exportButton.addEventListener("click", exportJson);
+    importButton.addEventListener("click", () => importFileInput.click());
+
+    importFileInput.addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      importJsonFile(file);
+    });
+
+    renderCategoryOptions();
+    renderStars();
+    promptCategorySelect.value = categories[0] || "";
     renderPrompts();
   </script>
 </body>
